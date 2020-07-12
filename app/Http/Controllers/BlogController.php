@@ -3,10 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Blog;
+use App\Category;
+use App\Comment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 
 class BlogController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except(['getAll', 'index', 'showByCategory']);
+    }
+
+    public function like(Request $request ,$id)
+    {
+        $request->session()->push('liked', $id);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,15 +29,45 @@ class BlogController extends Controller
      */
     public function getAll()
     {
-        //dd(Blog::all());
-        return view('blog');
+        $blogs = Blog::orderBy("id", "DESC")->get();
+        for($i = 0; $i < $blogs->count(); $i++){
+            if(strlen($blogs[$i]->blogText) >200){
+                $blogs[$i]->blogText = substr($blogs[$i]->blogText, 0, 500)."...";
+            }
+        }
+        return view('home', [
+            'blogs' => $blogs,
+        ]);
+    }
+
+    public function showByCategory($id)
+    {
+        $category = Category::findOrFail($id);
+
+        $blogs = $category->blogs;
+        for ($i = 0; $i < $blogs->count(); $i++) {
+            if (strlen($blogs[$i]->blogText) > 200) {
+                $blogs[$i]->blogText = substr($blogs[$i]->blogText, 0, 500) . "...";
+            }
+        }
+        return view('/home', [
+            'blogs' => $blogs,
+        ]);
     }
 
     public function index($id)
     {
-        $user = Blog::findOrFail($id);
-        dd($user);
-        return view('blog');
+        $blog = Blog::findOrFail($id);
+        // //dd($blog);
+        // for($i = 0; $i < $blog->comments->count(); $i++){
+        //     dd($blog->comments[0]->commenterName);
+        // }
+        $blog->viewCount++;
+        $blog->save();
+        return view('blog\show', [
+            'blog' => $blog,
+            'comments' => $blog->comments,
+        ]);
     }
     /**
      * Show the form for creating a new resource.
@@ -31,7 +76,10 @@ class BlogController extends Controller
      */
     public function create()
     {
-        //
+        $categories = Category::orderBy("created_at", "DESC")->get();
+        return view('blog/create',[
+            'categories' => $categories,
+        ]);
     }
 
     /**
@@ -42,7 +90,30 @@ class BlogController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'title' => 'required',
+            'subtitle' => 'required',
+            'image' => ['required', 'image'],
+            'blogText' => 'required',
+        ]);
+
+        $imagePath = request('image')->store('uploads', 'public');
+
+        $blog = new Blog();
+
+        $blog->user_id = Auth::user()->id;
+        $blog->title = $request->title;
+        $blog->subtitle = $request->subtitle;
+        $blog->category_id = $request->category_id;
+        $blog->image = $imagePath;
+        $blog->tag = $request->tag;
+        $blog->blogText = $request->blogText;
+        $blog->created_at = Carbon::now()->toDateTimeString();
+        $blog->updated_at = Carbon::now()->toDateTimeString();
+
+        //dd($blog->image);
+        $blog->save();
+        return redirect("blog/{$blog->id}");
     }
 
     /**
@@ -62,9 +133,16 @@ class BlogController extends Controller
      * @param  \App\Blog  $blog
      * @return \Illuminate\Http\Response
      */
-    public function edit(Blog $blog)
+    public function edit($id)
     {
-        //
+        $user = Auth::user();
+        $blog = Blog::findOrFail($id);
+        $categories = Category::all();
+        $this->authorize('update',$blog);
+        return view("/blog/edit", [
+            'blog' => $blog,
+            'categories' => $categories
+        ]);
     }
 
     /**
@@ -74,9 +152,15 @@ class BlogController extends Controller
      * @param  \App\Blog  $blog
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Blog $blog)
+    public function update(Request $request, $id)
     {
-        //
+        $blog = Blog::findOrFail($id);
+        $this->authorize('update', $blog);
+        $blog->title = $request->title;
+        $blog->subtitle = $request->subtitle;
+        $blog->blogText = $request->input('blogText');
+        $blog->save();
+        return redirect("/blog/{$blog->id}");
     }
 
     /**
@@ -85,8 +169,10 @@ class BlogController extends Controller
      * @param  \App\Blog  $blog
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Blog $blog)
+    public function destroy($id)
     {
-        //
+        $blog = Blog::findOrFail($id);
+        $blog->forceDelete();
+        return redirect("/home");
     }
 }

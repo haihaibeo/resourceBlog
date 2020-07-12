@@ -21,6 +21,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/index.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -40,18 +41,8 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
-                        <li class="nav-item dropdown">
-                            <a href="#" id="catergoryDropdown" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                Catergories
-                            </a>
-
-                            <div class="dropdown-menu dropdown-menu-right nav-pills" aria-labelledby="catergoryDropdown">
-                                <a href="#" class="dropdown-item active">Item 1</a>
-                                <a href="#" class="dropdown-item">Item 2</a>
-                                <a href="#" class="dropdown-item">Item 3</a>
-                                <a href="#" class="dropdown-item">Item 4</a>
-                            </div>
-                        </li>
+                        <x-category-dropdown>
+                        </x-category-dropdown>
 
                         <form class="mr-2 my-auto w-100 d-inline-block order-1">
                             <div class="input-group">
@@ -86,6 +77,7 @@
                                 {{ Auth::user()->name }} <span class="caret"></span>
                             </a>
 
+
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
@@ -96,6 +88,10 @@
                                     @csrf
                                 </form>
                             </div>
+                        </li>
+                            
+                        <li class="nav-item dropdown">
+                            <a href="/blog/create" class="btn btn-primary">Publish</a>
                         </li>
                         @endguest
                     </ul>

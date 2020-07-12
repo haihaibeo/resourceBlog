@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCommentsTable extends Migration
+class AddLikeViewCountToBlogsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,9 @@ class CreateCommentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('comments', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('blog_id');
-            $table->string('commenterName');
-            $table->string('commentString');
-            $table->timestamps();
+        Schema::table('blogs', function (Blueprint $table) {
+            $table->integer('likeCount');
+            $table->integer('viewCount');
         });
     }
 
@@ -29,6 +26,8 @@ class CreateCommentsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('comments');
+        Schema::table('blogs', function (Blueprint $table) {
+            //
+        });
     }
 }

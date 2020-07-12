@@ -41,4 +41,20 @@ class User extends Authenticatable
         return $this->hasMany(Blog::class);
     }
 
+    public function likes(){
+        return $this->belongsToMany(Blog::class);
+    }
+
+    public function ifUserLikeBlog($blog){
+        return $this->likes->contains($blog->id);
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function($user){
+            $user->blogs()->delete();
+        });
+    }
 }
