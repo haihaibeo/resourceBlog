@@ -29,7 +29,7 @@ class BlogController extends Controller
      */
     public function getAll()
     {
-        $blogs = Blog::orderBy("id", "DESC")->get();
+        $blogs = Blog::orderBy("id", "DESC")->paginate(5);
         for($i = 0; $i < $blogs->count(); $i++){
             if(strlen($blogs[$i]->blogText) >200){
                 $blogs[$i]->blogText = substr($blogs[$i]->blogText, 0, 500)."...";
@@ -42,9 +42,7 @@ class BlogController extends Controller
 
     public function showByCategory($id)
     {
-        $category = Category::findOrFail($id);
-
-        $blogs = $category->blogs;
+        $blogs = Blog::where('category_id', $id)->paginate(5);
         for ($i = 0; $i < $blogs->count(); $i++) {
             if (strlen($blogs[$i]->blogText) > 200) {
                 $blogs[$i]->blogText = substr($blogs[$i]->blogText, 0, 500) . "...";
@@ -58,10 +56,6 @@ class BlogController extends Controller
     public function index($id)
     {
         $blog = Blog::findOrFail($id);
-        // //dd($blog);
-        // for($i = 0; $i < $blog->comments->count(); $i++){
-        //     dd($blog->comments[0]->commenterName);
-        // }
         $blog->viewCount++;
         $blog->save();
         return view('blog\show', [

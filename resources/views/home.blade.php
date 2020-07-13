@@ -104,6 +104,11 @@
         </div>
     </div>
     @endforeach
+    <div class="row">
+        <div class="col-12 d-flex justify-content-center">
+            {{ $blogs->links() }}
+        </div>
+    </div>
     <!-- #endregion -->
 </div>
 @endsection
