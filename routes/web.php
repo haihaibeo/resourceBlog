@@ -28,6 +28,8 @@ Route::get('/blog/{id}/edit', 'BlogController@edit')->name('blog.edit')->middlew
 Route::get('/blog/{id}/delete', 'BlogController@destroy')->name('blog.destroy')->middleware('auth');  
 Route::patch('/blog/{id}', 'BlogController@update')->name('blog.update')->middleware('auth');
 
+Route::get('/search', 'BlogController@searchBlogs')->name('blog.find');
+
 Route::get('/category/create', 'CategoryController@create');
 Route::post('/category', 'CategoryController@store');
 

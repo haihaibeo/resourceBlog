@@ -14,7 +14,7 @@ class BlogController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except(['getAll', 'index', 'showByCategory']);
+        $this->middleware('auth')->except(['getAll', 'index', 'showByCategory', 'searchBlogs']);
     }
 
     public function like(Request $request ,$id)
@@ -30,24 +30,43 @@ class BlogController extends Controller
     public function getAll()
     {
         $blogs = Blog::orderBy("id", "DESC")->paginate(5);
-        for($i = 0; $i < $blogs->count(); $i++){
-            if(strlen($blogs[$i]->blogText) >200){
-                $blogs[$i]->blogText = substr($blogs[$i]->blogText, 0, 500)."...";
-            }
-        }
+        $this->trimText($blogs, 500);
         return view('home', [
             'blogs' => $blogs,
+        ]);
+    }
+
+    private function trimText(&$blogs, $toLength){
+        for ($i = 0; $i < $blogs->count(); $i++) {
+            if (strlen($blogs[$i]->blogText) > $toLength) {
+                $blogs[$i]->blogText = substr($blogs[$i]->blogText, 0, $toLength) . "...";
+            }
+        }
+    }
+
+    public function searchBlogs()
+    {
+        $searchTerm = request()->input('searchTerm');
+        $blogs = Blog::all();
+        $result = collect();
+        foreach($blogs as $blog){
+            if(strpos($blog->title, $searchTerm) || strpos($blog->subtitle, $searchTerm)){
+                $result->push($blog);
+            }
+        }
+
+        $this->trimText($result, 500);
+
+        return view('home', [
+            'blogs' => $result,
+            'paginated' => 'false'
         ]);
     }
 
     public function showByCategory($id)
     {
         $blogs = Blog::where('category_id', $id)->paginate(5);
-        for ($i = 0; $i < $blogs->count(); $i++) {
-            if (strlen($blogs[$i]->blogText) > 200) {
-                $blogs[$i]->blogText = substr($blogs[$i]->blogText, 0, 500) . "...";
-            }
-        }
+        $this->trimText($blogs, 500);
         return view('/home', [
             'blogs' => $blogs,
         ]);

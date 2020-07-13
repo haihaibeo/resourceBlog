@@ -104,11 +104,13 @@
         </div>
     </div>
     @endforeach
-    <div class="row">
-        <div class="col-12 d-flex justify-content-center">
-            {{ $blogs->links() }}
+    @unless ($paginated ?? '' == 'false')
+        <div class="row">
+            <div class="col-12 d-flex justify-content-center">
+                {{ $blogs->links() }}
+            </div>
         </div>
-    </div>
+    @endunless
     <!-- #endregion -->
 </div>
 @endsection
