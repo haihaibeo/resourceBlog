@@ -17,11 +17,6 @@ class BlogController extends Controller
         $this->middleware('auth')->except(['getAll', 'index', 'showByCategory', 'searchBlogs']);
     }
 
-    public function like(Request $request ,$id)
-    {
-        $request->session()->push('liked', $id);
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -127,17 +122,6 @@ class BlogController extends Controller
         //dd($blog->image);
         $blog->save();
         return redirect("blog/{$blog->id}");
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Blog  $blog
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Blog $blog)
-    {
-        //
     }
 
     /**

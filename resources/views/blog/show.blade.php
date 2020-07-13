@@ -46,14 +46,14 @@
         </div>
 
 
-        @if (Auth::check())
+        @auth
         @can('update', $blog)
         <div class="d-flex flex-row-reverse bd-highlight my-2">
             <a href="/blog/{{$blog->id}}/delete" class="btn btn-danger">Delete</a>
             <a href="/blog/{{$blog->id}}/edit" class="btn btn-secondary mr-2">Edit</a>
         </div>  
         @endcan
-        @endif
+        @endauth
 
         <br>                
         <h4>Comment section</h4>
